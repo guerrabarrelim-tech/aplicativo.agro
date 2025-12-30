@@ -55,4 +55,3 @@ with tab2:
         if st.form_submit_button("Salvar Registro"):
             st.balloons()
             st.success("Dados registrados no sistema!")
-
