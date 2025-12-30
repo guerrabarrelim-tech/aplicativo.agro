@@ -1,7 +1,7 @@
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from folium.plugins import Draw
+from folium.plugins import Draw, LocateControl
 
 # Configuração da página
 st.set_page_config(page_title="Gestor de Safra Pro", layout="wide")
@@ -11,14 +11,26 @@ st.title("🚜 Sistema de Gestão de Áreas e Safra")
 tab1, tab2 = st.tabs(["📍 Mapear Área", "📝 Diário de Campo"])
 
 with tab1:
-    st.header("Desenhe o Talhão no Mapa")
+    st.header("Localização e Desenho")
     
-    # URL do Google Satélite com atribuição correta
-    google_satellite = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
-    attr = 'Google Maps'
+    # URL do Google Híbrido (Satélite + Estradas + Nomes em Português)
+    # O parâmetro &hl=pt-BR força o idioma para Português do Brasil
+    google_hybrid = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=pt-BR'
     
-    # Iniciando o mapa (Centralizado em Morrinhos/GO por padrão)
-    m = folium.Map(location=[-17.73, -49.10], zoom_start=14, tiles=google_satellite, attr=attr)
+    # Criando o mapa com a atribuição obrigatória para evitar o ValueError
+    m = folium.Map(
+        location=[-17.73, -49.10], 
+        zoom_start=14, 
+        tiles=google_hybrid, 
+        attr='Google Maps'
+    )
+    
+    # ADICIONA O BOTÃO DE GPS (LOCALIZAÇÃO INSTANTÂNEA)
+    # O texto de ajuda também configurado para PT-BR
+    LocateControl(
+        auto_start=False,
+        strings={"title": "Mostrar minha localização atual", "popup": "Você está aqui"}
+    ).add_to(m)
     
     # Ferramentas de desenho
     draw = Draw(
@@ -26,8 +38,12 @@ with tab1:
         filename='area_fazenda.geojson',
         position='topleft',
         draw_options={
-            'polyline': False, 'rectangle': True, 'circle': False, 
-            'marker': False, 'circlemarker': False, 'polygon': True,
+            'polyline': False, 
+            'rectangle': True, 
+            'circle': False, 
+            'marker': False, 
+            'circlemarker': False, 
+            'polygon': True,
         }
     )
     draw.add_to(m)
