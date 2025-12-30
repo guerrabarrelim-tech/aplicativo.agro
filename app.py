@@ -13,10 +13,11 @@ tab1, tab2 = st.tabs(["📍 Mapear Área", "📝 Diário de Campo"])
 with tab1:
     st.header("Localização e Desenho")
     
-    # URL do Google Híbrido (Satélite + Estradas + Nomes em PT-BR)
-    # Importante: attr='Google' resolve o erro de Attribution
+    # Google Híbrido (Satélite + Estradas em Português)
+    # O parâmetro &hl=pt-BR coloca os nomes em português
     google_hybrid = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=pt-BR'
     
+    # CRIANDO O MAPA - Note o 'attr' que evita o erro que você está tendo
     m = folium.Map(
         location=[-17.73, -49.10], 
         zoom_start=14, 
@@ -24,10 +25,10 @@ with tab1:
         attr='Google Maps'
     )
     
-    # Botão de GPS
+    # Botão de GPS (Localização Instantânea)
     LocateControl(
         auto_start=False,
-        strings={"title": "Mostrar minha localização", "popup": "Você está aqui"}
+        strings={"title": "Minha Localização", "popup": "Você está aqui"}
     ).add_to(m)
     
     # Ferramentas de desenho
@@ -42,7 +43,8 @@ with tab1:
     )
     draw.add_to(m)
     
-    output = st_folium(m, width=900, height=500)
+    # Exibe o mapa
+    st_folium(m, width=900, height=500)
 
 with tab2:
     st.header("Dados da Cultura e Aplicação")
@@ -51,19 +53,19 @@ with tab2:
         col1, col2 = st.columns(2)
         
         with col1:
-            cultura = st.selectbox("Cultura", ["Soja", "Milho", "Algodão", "Feijão", "Outro"])
+            cultura = st.selectbox("Cultura", ["Soja", "Milho", "Algodão", "Feijão", "Sorgo", "Outra"])
             cultivar = st.text_input("Variedade / Cultivar (Ex: M7739 IPRO)")
-            safra = st.text_input("Safra (Ex: 24/25)")
+            safra = st.text_input("Safra (Ex: 2024/25)")
             data_app = st.date_input("Data da Aplicação")
             
         with col2:
-            metodo = st.selectbox("Método de Aplicação", ["Uniport", "Pivô Central", "A Lanço", "Tratorizado"])
-            st.write("**Produtos Utilizados na Calda:**")
-            # Campo de texto grande para múltiplos produtos
-            produtos_lista = st.text_area("Liste os produtos e doses (Ex: Glifosato 2L + Adjuvante 0.5L)", 
-                                         help="Você pode listar todos os produtos da mistura aqui.")
+            metodo = st.selectbox("Método de Aplicação", ["Uniport", "Pivô Central", "A Lanço", "Costal", "Tratorizado"])
+            
+            st.write("**Mistura de Calda (Produtos):**")
+            # Aqui você pode adicionar quantos produtos quiser
+            produtos = st.text_area("Liste os produtos e dosagens", 
+                                  placeholder="Ex:\n1. Glifosato - 2L/ha\n2. Óleo Mineral - 0.5L/ha\n3. Inseticida - 0.3L/ha")
             
         if st.form_submit_button("Salvar Registro"):
             st.balloons()
-            st.success(f"Registro de {cultura} ({cultivar}) salvo com sucesso!")
-            st.info(f"Produtos registrados: {produtos_lista}")
+            st.success(f"Registro de {cultura} ({cultivar}) salvo!")
