@@ -13,13 +13,14 @@ tab1, tab2 = st.tabs(["📍 Mapear Área", "📝 Diário de Campo"])
 with tab1:
     st.header("Desenhe o Talhão no Mapa")
     
-    # Link do Google Satélite com a atribuição correta para não dar erro
+    # URL do Google Satélite com atribuição correta
     google_satellite = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
-    attr = 'Google'
+    attr = 'Google Maps'
     
-    # Centralizado em Morrinhos/GO (ajuste se preferir)
+    # Iniciando o mapa (Centralizado em Morrinhos/GO por padrão)
     m = folium.Map(location=[-17.73, -49.10], zoom_start=14, tiles=google_satellite, attr=attr)
     
+    # Ferramentas de desenho
     draw = Draw(
         export=True,
         filename='area_fazenda.geojson',
@@ -31,24 +32,27 @@ with tab1:
     )
     draw.add_to(m)
     
+    # Exibe o mapa
     output = st_folium(m, width=900, height=500)
     
     if output and output.get('all_drawings'):
-        st.success("Área capturada!")
+        st.success("Área capturada com sucesso!")
 
 with tab2:
     st.header("Dados da Cultura e Aplicação")
     with st.form("diario_safra"):
         col1, col2 = st.columns(2)
         with col1:
-            cultura = st.text_input("Cultura (Ex: Soja)")
-            safra = st.text_input("Ano da Safra")
-            adubo = st.text_input("Adubação")
+            cultura = st.text_input("Cultura (Ex: Soja, Milho)")
+            safra = st.text_input("Ano da Safra (Ex: 24/25)")
+            adubo = st.text_input("Adubação Utilizada")
         with col2:
-            metodo = st.selectbox("Método", ["Uniport", "Pivô Central", "A Lanço"])
+            metodo = st.selectbox("Método de Aplicação", ["Uniport", "Pivô Central", "A Lanço"])
             produto = st.text_input("Produto Químico")
-            dose = st.number_input("Quantidade (L ou kg/ha)")
+            dose = st.number_input("Quantidade por hectare (kg ou L/ha)", min_value=0.0)
+            data_app = st.date_input("Data da Aplicação")
         
         if st.form_submit_button("Salvar Registro"):
             st.balloons()
-            st.success("Dados registrados!")
+            st.success("Dados registrados no sistema!")
+
