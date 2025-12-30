@@ -2,67 +2,53 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 from folium.plugins import Draw
-import pandas as pd
 
 # Configuração da página
 st.set_page_config(page_title="Gestor de Safra Pro", layout="wide")
 
 st.title("🚜 Sistema de Gestão de Áreas e Safra")
 
-# Criando abas para organizar o app
 tab1, tab2 = st.tabs(["📍 Mapear Área", "📝 Diário de Campo"])
 
 with tab1:
     st.header("Desenhe o Talhão no Mapa")
-    st.write("Use as ferramentas à esquerda do mapa para desenhar o polígono da sua área.")
     
-    # Centralização inicial (pode ser alterada para as coordenadas da sua fazenda)
-    m = folium.Map(location=[-18.48, -49.12], zoom_start=13, tiles="CartoDB satellite")
+    # Link do Google Satélite com a atribuição correta para não dar erro
+    google_satellite = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+    attr = 'Google'
     
-    # Adiciona ferramentas de desenho
+    # Centralizado em Morrinhos/GO (ajuste se preferir)
+    m = folium.Map(location=[-17.73, -49.10], zoom_start=14, tiles=google_satellite, attr=attr)
+    
     draw = Draw(
         export=True,
         filename='area_fazenda.geojson',
         position='topleft',
         draw_options={
-            'polyline': False,
-            'rectangle': True,
-            'circle': False,
-            'marker': False,
-            'circlemarker': False,
-            'polygon': True,
+            'polyline': False, 'rectangle': True, 'circle': False, 
+            'marker': False, 'circlemarker': False, 'polygon': True,
         }
     )
     draw.add_to(m)
     
-    # Renderiza o mapa e captura os dados do desenho
     output = st_folium(m, width=900, height=500)
     
-    # Se o usuário desenhou algo, extraímos as coordenadas
-    if output['all_drawings']:
-        st.success("Área selecionada com sucesso!")
-        coords = output['all_drawings'][0]['geometry']['coordinates']
-        st.write(f"Coordenadas capturadas: {coords}")
+    if output and output.get('all_drawings'):
+        st.success("Área capturada!")
 
 with tab2:
     st.header("Dados da Cultura e Aplicação")
-    
     with st.form("diario_safra"):
         col1, col2 = st.columns(2)
-        
         with col1:
-            cultura = st.text_input("Cultura (Ex: Soja, Milho)")
-            data_plantio = st.date_input("Data do Plantio")
-            safra = st.text_input("Ano da Safra (Ex: 24/25)")
-            adubo = st.text_input("Adubação Utilizada")
-            
+            cultura = st.text_input("Cultura (Ex: Soja)")
+            safra = st.text_input("Ano da Safra")
+            adubo = st.text_input("Adubação")
         with col2:
-            metodo = st.selectbox("Método de Aplicação", ["Uniport", "Pivô Central", "A Lanço"])
-            produto = st.text_input("Produto Químico/Defensivo")
-            dose = st.number_input("Quantidade por hectare (kg ou L/ha)", min_value=0.0)
-            data_app = st.date_input("Data da Aplicação")
-
-        # Botão para salvar
-        submitted = st.form_submit_button("Salvar Registro")
-        if submitted:
-            st.info(f"Registro de {cultura} (Safra {safra}) armazenado no histórico.")
+            metodo = st.selectbox("Método", ["Uniport", "Pivô Central", "A Lanço"])
+            produto = st.text_input("Produto Químico")
+            dose = st.number_input("Quantidade (L ou kg/ha)")
+        
+        if st.form_submit_button("Salvar Registro"):
+            st.balloons()
+            st.success("Dados registrados!")
